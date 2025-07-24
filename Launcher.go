@@ -10,13 +10,6 @@ import (
 	"strings"
 )
 
-// TODO: Put the logger EVERYWHERE needed
-// Update VaultLogins text
-// General architecture of the project regarding network packet and logic: inside doctor packet
-// put Logging.go,MessageDatabase.go as one file for simplicity
-// Same thing with Headdoc and Patient
-// Headdpctor should have Doctor struct with the boolean IsHead true, should be the same as the
-// ClientDoc inside program logic.
 func main() {
 	fmt.Println("=====================================")
 	fmt.Println("DoctorOperations Terminal System")
