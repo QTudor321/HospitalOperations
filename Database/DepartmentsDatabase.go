@@ -4,7 +4,7 @@ import (
 	"strings"
 	"HospitalQOps/errorspacket"
 )
-var connectionString= "host=localhost port=5432 user=postgres password=Quantum132 dbname=hospital sslmode=disable"
+var connectionString= "host=localhost port=5432 user=postgres password=password dbname=hospital sslmode=disable"
 func GetNursesAndDoctorsByDepartments() (string,error){
 	db,err:=DatabaseConnection(connectionString)
 	if err!=nil{
