@@ -162,7 +162,7 @@ func PatientOperationsMenu(pat *model.Patient, connection net.Conn) bool{
 		fmt.Println("Operations results:")
 		operationsResultPatient,err:=database.GetOperationsPatient(*pat)
 		if err!=nil{
-			fmt.Println("Failed to retrieve patients admissions")
+			fmt.Println("Failed to retrieve patients operations")
 		}
 		fmt.Println(operationsResultPatient)
 	case "9":

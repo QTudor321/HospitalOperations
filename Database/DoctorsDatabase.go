@@ -80,7 +80,24 @@ func RegisterDoctor(doc model.Doctor) error {
 	}
 	return nil
 }
+func RegisterHeaddoctor(doc model.Doctor) error{
+	db,err:=DatabaseConnection(connectionString)
+	if err!=nil{
+		fmt.Println(errorspacket.DatabaseConnectionError)
+		return err
+	}
+	defer db.Close()
+	query := `
+		INSERT INTO Doctors (last_name, first_name, specialty, email, phone, department_id, is_Headdoctor, credit)
+		VALUES ($1, $2, $3, $4, $5, $6, true, 10000.00)`
 
+	_, err = db.Exec(query, doc.LastName, doc.FirstName, doc.Specialty, doc.Email, doc.Phone, doc.DepartmentID)
+	if err != nil {
+		fmt.Println(errorspacket.ExecutionError)
+		return err
+	}
+	return nil
+}
 func GetPatientsListByDoctor(doctor model.Doctor) (string, error) {
 	db, err := DatabaseConnection(connectionString)
 	if err != nil {
@@ -277,4 +294,113 @@ func AverageNumberOfMedsPrescribed() (string, error) {
 	}
 
 	return fmt.Sprintf("Average medications per prescription: %.2f", avg), nil
+}
+func GetAllDoctors() (string,error){
+	db, err := DatabaseConnection(connectionString)
+	if err != nil {
+		fmt.Println(errorspacket.DatabaseConnectionError)
+		return "", err
+	}
+	defer db.Close()
+	query := `SELECT * FROM Doctors`
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println(errorspacket.QueryError)
+		return "", errorspacket.QueryError
+	}
+	defer rows.Close()
+
+	var listD strings.Builder
+
+	for rows.Next() {
+		var docLast, docFirst, specialty, emailD, phone string
+		var docID, depID int
+		var isHead bool
+		var credit float64
+		if err := rows.Scan(&docID, &docLast, &docFirst, &specialty, &emailD, &phone, &depID, &isHead, &credit); err != nil {
+			return "", errorspacket.QueryError
+		}
+		listD.WriteString(fmt.Sprintf("Doctor and Department ID: %d %d\n", docID, depID))
+		listD.WriteString(fmt.Sprintf("Last and First Name: %s %s\n", docLast, docFirst))
+		listD.WriteString(fmt.Sprintf("Specialty and Email: %s %s \n", specialty, emailD))
+		listD.WriteString(fmt.Sprintf("Phone: (%s)\n", phone))
+		listD.WriteString(fmt.Sprintf("Is headdoctor and credit: %t %.2f\n\n", isHead, credit))
+	}
+
+	if err = rows.Err(); err != nil {
+		return "", err
+	}
+
+	return listD.String(), nil
+}
+func GetAllPatients() (string,error){
+	db, err := DatabaseConnection(connectionString)
+	if err != nil {
+		fmt.Println(errorspacket.DatabaseConnectionError)
+		return "", err
+	}
+	defer db.Close()
+	query := `SELECT * FROM Patients`
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println(errorspacket.QueryError)
+		return "", errorspacket.QueryError
+	}
+	defer rows.Close()
+
+	var listP strings.Builder
+
+	for rows.Next() {
+		var patLast, patFirst, gender, email, phone, address string
+		var patID, age int
+		var credit float64
+		if err := rows.Scan(&patID, &patLast, &patFirst, &age, &gender, &email, &phone, &address, &credit); err != nil {
+			return "", errorspacket.QueryError
+		}
+		listP.WriteString(fmt.Sprintf("Patient ID, Last and First Name: %d %s %s\n", patID, patLast, patFirst))
+		listP.WriteString(fmt.Sprintf("Age, Gender, Email: %d %s %s\n", age, gender, email))
+		listP.WriteString(fmt.Sprintf("Phone: (%s)\n", phone))
+		listP.WriteString(fmt.Sprintf("Address: {%s}\n", address))
+		listP.WriteString(fmt.Sprintf("credit: %.2f\n\n", credit))
+	}
+
+	if err = rows.Err(); err != nil {
+		return "", err
+	}
+
+	return listP.String(), nil
+}
+func GetNursesDoctors() (string,error){
+	db, err := DatabaseConnection(connectionString)
+	if err != nil {
+		fmt.Println(errorspacket.DatabaseConnectionError)
+		return "", err
+	}
+	defer db.Close()
+	query := `SELECT * FROM nurses_doctors`
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println(errorspacket.QueryError)
+		return "", errorspacket.QueryError
+	}
+	defer rows.Close()
+
+	var listDN strings.Builder
+
+	for rows.Next() {
+		var notes string
+		var dnID, nurseID, docID int
+		if err := rows.Scan(&dnID, &nurseID, &docID, &notes); err != nil {
+			return "", errorspacket.QueryError
+		}
+		listDN.WriteString(fmt.Sprintf("Identifier: %d\n", dnID))
+		listDN.WriteString(fmt.Sprintf("Nurse and Doctor ID: %d %d\n", nurseID, docID))
+		listDN.WriteString(fmt.Sprintf("Notes: %s\n", notes))
+	}
+
+	if err = rows.Err(); err != nil {
+		return "", err
+	}
+
+	return listDN.String(), nil
 }
